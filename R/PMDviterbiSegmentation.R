@@ -3,11 +3,16 @@ function(m, hmm.model, nCGbin, num.cores){
 
   message("performing viterbi segmentation")
 
-  chrs=unique(as.character(seqnames(m)))
-  
-  y.list=mclapply(chrs, function(chr.sel){
+
+  # only segments chromosomes with at least nCGbin covered CpGs
+
+  nCGsPerChr=table(as.character(seqnames(m)))
+  chrs=names(nCGsPerChr)[nCGsPerChr>=nCGbin]
+
+   y.list=mclapply(chrs, function(chr.sel){
 
     indx=as.character(seqnames(m))==chr.sel;
+
     T <- as.numeric(values(m[indx])[, 1])
     M <- as.numeric(values(m[indx])[, 2])
     score <- calculateAlphaDistr(M, T, nCGbin, num.cores)
